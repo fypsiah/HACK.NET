@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackNet v2.0</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+:root {
+  --bg:#050a0e;--bg2:#091218;--panel:#0a1520;--panel2:#0f1f2e;
+  --green:#00ff88;--green2:#00cc6a;--cyan:#00e5ff;
+  --red:#ff3355;--orange:#ff9900;--yellow:#ffdd00;--purple:#aa44ff;
+  --text:#c8e6f0;--text2:#7aabb8;--text3:#3a6a7a;
+  --border:#1a3a4a;--border2:#0a2030;
+  --gg:0 0 12px #00ff8833;--gc:0 0 12px #00e5ff33;--gr:0 0 12px #ff335533;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;overflow:hidden;height:100vh;width:100vw;cursor:crosshair;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999;}
+.screen{display:none;width:100vw;height:100vh;position:absolute;top:0;left:0;}
+.screen.active{display:flex;}
+/* MENU */
+#screen-menu{flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#0a2030,var(--bg) 70%);}
+.mgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px;animation:gp 4s ease-in-out infinite;}
+@keyframes gp{0%,100%{opacity:.4}50%{opacity:1}}
+.logo{font-family:'Orbitron',sans-serif;font-size:66px;font-weight:900;color:var(--cyan);text-shadow:0 0 20px #00e5ff88,0 0 60px #00e5ff22;letter-spacing:12px;animation:lf 7s infinite;}
+@keyframes lf{0%,93%,95%,100%{opacity:1}94%{opacity:.55}}
+.logo-s{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:300;color:var(--text3);letter-spacing:8px;text-transform:uppercase;margin-top:6px;}
+.logo-v{font-size:10px;color:var(--green);letter-spacing:4px;margin-top:4px;opacity:.6;}
+.mbtns{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;width:255px;margin-top:42px;}
+.mbtn{background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--border);color:var(--text);font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;padding:13px 20px;cursor:pointer;text-transform:uppercase;transition:all .15s;position:relative;overflow:hidden;}
+.mbtn::before{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,229,255,.08),transparent);transition:left .35s;}
+.mbtn:hover::before{left:100%;}
+.mbtn:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--gc);}
+.mbtn.p{border-color:var(--green);color:var(--green);box-shadow:var(--gg);}
+.mbtn.p:hover{background:linear-gradient(135deg,#001a0e,#002a18);}
+.mfoot{position:absolute;bottom:18px;text-align:center;z-index:2;}
+.mfoot p{color:var(--text3);font-size:10px;letter-spacing:2px;line-height:1.9;}
+/* SUB SCREENS */
+.sub-screen{flex-direction:column;background:var(--bg2);overflow:hidden;}
+.sub-hdr{background:var(--panel);border-bottom:1px solid var(--border);padding:13px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.sub-hdr h1{font-family:'Orbitron',sans-serif;font-size:16px;color:var(--cyan);letter-spacing:4px;}
+.sub-body{flex:1;overflow-y:auto;padding:24px;}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;max-width:960px;margin:0 auto;}
+.hcard{background:var(--panel);border:1px solid var(--border);padding:17px;}
+.hcard h3{color:var(--green);font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;margin-bottom:9px;}
+.hcard p,.hcard li{color:var(--text2);font-size:11px;line-height:1.8;}
+.hcard ul{padding-left:14px;}
+.bbtn{padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .15s;}
+.bbtn:hover{border-color:var(--cyan);color:var(--cyan);}
+/* CREDITS */
+#screen-credits{flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0a1a28,var(--bg) 70%);}
+.crbox{text-align:center;max-width:440px;}
+.crbox h1{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--cyan);letter-spacing:6px;margin-bottom:34px;}
+.crow{margin-bottom:20px;}
+.crow .role{color:var(--text3);font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;}
+.crow .name{color:var(--green);font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;}
+.cdiv{width:48px;height:1px;background:var(--border);margin:13px auto;}
+/* GAME */
+#screen-game{flex-direction:column;overflow:hidden;}
+#topbar{display:flex;align-items:center;background:var(--panel);border-bottom:1px solid var(--border);padding:9px 18px;flex-shrink:0;gap:20px;}
+.tlogo{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--cyan);letter-spacing:4px;opacity:.55;}
+.tlvl{display:flex;flex-direction:column;gap:4px;width:185px;}
+.lvrow{display:flex;align-items:baseline;justify-content:space-between;}
+.lvbadge{font-family:'Orbitron',sans-serif;font-size:15px;color:var(--yellow);font-weight:700;}
+.xplbl{font-size:9px;color:var(--text3);}
+.xptrack{background:var(--bg2);border:1px solid var(--border2);height:3px;border-radius:2px;overflow:hidden;}
+.xpfill{height:100%;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .5s;}
+.tdata{display:flex;align-items:center;gap:7px;margin-left:auto;}
+.dval{font-family:'Orbitron',sans-serif;font-size:15px;color:var(--green);font-weight:700;}
+.dlbl{font-size:9px;color:var(--text3);letter-spacing:1px;}
+.alock{cursor:pointer;color:var(--text3);font-size:12px;padding:4px 8px;transition:all .15s;opacity:.45;}
+.alock:hover{color:var(--red);opacity:1;}
+#gtabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;padding:0 4px;}
+.gtab{padding:10px 16px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none;}
+.gtab:hover{color:var(--text);}
+.gtab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tpanel{display:none;flex:1;overflow:hidden;}
+.tpanel.active{display:flex;}
+#tab-targets{flex-direction:column;overflow-y:auto;padding:18px 20px;}
+#tab-network{position:relative;overflow:hidden;}
+#tab-tools{flex-direction:column;overflow-y:auto;padding:18px 20px;}
+/* TARGET CARDS */
+.zhead{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;margin-top:18px;display:flex;align-items:center;gap:10px;}
+.zhead:first-child{margin-top:0;}
+.zhead::after{content:'';flex:1;height:1px;background:var(--border2);}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:8px;margin-bottom:4px;}
+.tcard{background:var(--panel);border:1px solid var(--border);padding:13px 15px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.tcard:hover{border-color:var(--cyan);box-shadow:var(--gc);}
+.tchead{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.tcname{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text);font-weight:700;}
+.tcdiff{font-size:9px;padding:2px 7px;border:1px solid;letter-spacing:2px;}
+.d1{color:#00ff88;border-color:#00ff8833;}.d2{color:#88ff00;border-color:#88ff0033;}
+.d3{color:#ffdd00;border-color:#ffdd0033;}.d4{color:#ff9900;border-color:#ff990033;}
+.d5{color:#ff6600;border-color:#ff660033;}.d6{color:#ff3355;border-color:#ff335533;}
+.d7{color:#ff00bb;border-color:#ff00bb33;}
+.tcdesc{font-size:10px;color:var(--text3);margin-bottom:7px;line-height:1.6;}
+.tcmeta{display:flex;gap:12px;font-size:10px;color:var(--text3);}
+.tcdone{font-size:9px;color:var(--green);margin-top:5px;}
+.nxtblock{background:var(--panel);border:1px dashed var(--border2);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;opacity:.4;margin-top:14px;}
+/* TOOLS */
+.tsgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:10px;}
+.toolcard{background:var(--panel);border:1px solid var(--border);padding:13px;transition:border-color .15s;}
+.toolcard:hover{border-color:var(--purple);}
+.tohead{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;}
+.toicon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.toname{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text);font-weight:700;letter-spacing:1px;}
+.tolvl{background:var(--bg);border:1px solid var(--border);padding:2px 7px;font-size:9px;color:var(--yellow);letter-spacing:2px;white-space:nowrap;flex-shrink:0;}
+.todesc{font-size:10px;color:var(--text3);margin-bottom:9px;line-height:1.6;}
+.topips{display:flex;gap:3px;margin-top:3px;}
+.topip{width:7px;height:7px;border-radius:50%;}
+.toupg{width:100%;padding:7px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .15s;}
+.toupg:not(:disabled):hover{border-color:var(--purple);color:var(--purple);background:#0d0818;}
+.toupg:disabled{opacity:.22;cursor:not-allowed;}
+/* NETWORK */
+#nsvg{width:100%;height:100%;}
+.ntt{position:absolute;background:var(--panel);border:1px solid var(--border);padding:9px 12px;pointer-events:none;font-size:10px;display:none;z-index:10;max-width:190px;line-height:1.7;}
+.ttname{color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:10px;margin-bottom:3px;}
+.ttinfo{color:var(--text3);}
+/* HACK MODAL */
+#hmodal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.88);align-items:center;justify-content:center;}
+#hmodal.open{display:flex;}
+#hbox{background:var(--bg2);border:1px solid var(--border);width:660px;max-width:95vw;max-height:91vh;overflow:hidden;display:flex;flex-direction:column;position:relative;}
+#hhdr{display:flex;align-items:center;justify-content:space-between;background:var(--panel);padding:11px 17px;border-bottom:1px solid var(--border);flex-shrink:0;}
+#htitle{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--cyan);letter-spacing:3px;}
+#hclose{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;}
+#hclose:hover{color:var(--red);}
+#htrace{padding:8px 17px;background:var(--panel2);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:9px;flex-shrink:0;}
+#tlbl{font-size:9px;color:var(--text3);letter-spacing:2px;white-space:nowrap;}
+#tbg{flex:1;height:6px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+#tbar{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--orange),var(--red));transition:width .22s;}
+#tpct{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--red);min-width:32px;text-align:right;}
+#hlayers{display:flex;gap:3px;padding:9px 17px;background:var(--bg);border-bottom:1px solid var(--border2);flex-shrink:0;flex-wrap:wrap;}
+.hl{flex:1;min-width:52px;padding:4px 3px;text-align:center;font-size:8px;letter-spacing:1px;border:1px solid var(--border);color:var(--text3);transition:all .22s;}
+.hl.done{background:#001a0e;border-color:var(--green);color:var(--green);}
+.hl.active{border-color:var(--cyan);color:var(--cyan);animation:lp .9s infinite;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.5}}
+#hgame{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;min-height:175px;}
+#htools{display:flex;gap:6px;padding:8px 17px;border-top:1px solid var(--border2);flex-shrink:0;flex-wrap:wrap;align-items:center;}
+.htlbl{font-size:9px;color:var(--text3);letter-spacing:2px;}
+.htbtn{display:flex;align-items:center;gap:5px;padding:4px 9px;background:var(--panel);border:1px solid var(--border);color:var(--text2);font-size:9px;cursor:pointer;transition:all .15s;}
+.htbtn:hover{border-color:var(--cyan);color:var(--cyan);}
+.htbtn.cd{opacity:.3;cursor:not-allowed;pointer-events:none;}
+.htcd{font-size:8px;color:var(--orange);}
+/* MINIGAMES */
+.mgw{width:100%;display:flex;flex-direction:column;align-items:center;gap:13px;}
+.mgt{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--cyan);letter-spacing:4px;}
+.mgh{font-size:10px;color:var(--text3);letter-spacing:1px;text-align:center;}
+/* Timing */
+#ttrack{width:100%;max-width:460px;height:44px;background:var(--panel);border:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer;border-radius:2px;}
+#tslider{width:6px;height:100%;background:var(--cyan);position:absolute;top:0;left:0;box-shadow:var(--gc);}
+#tzone{position:absolute;top:0;height:100%;background:rgba(0,255,136,.17);border-left:1px solid var(--green);border-right:1px solid var(--green);}
+#tres{font-family:'Orbitron',sans-serif;font-size:17px;text-align:center;height:26px;}
+/* Code Match */
+.cmtr{display:flex;gap:7px;justify-content:center;margin-bottom:8px;}
+.cmts{width:42px;height:42px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;}
+.cmopts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;max-width:370px;}
+.cmopt{width:50px;height:50px;background:var(--panel);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;transition:all .15s;}
+.cmopt:hover{border-color:var(--cyan);}
+.cmopt.sel{border-color:var(--green);background:#001a0e;}
+.cmopt.bad{border-color:var(--red);animation:shk .2s;}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.cmprog{font-size:10px;color:var(--text3);letter-spacing:2px;text-align:center;}
+/* Sequence */
+.seqg{display:grid;gap:5px;margin:5px 0;}
+.seqc{height:58px;background:var(--panel);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;transition:all .13s;}
+.seqc.lit{background:#001a10;border-color:var(--green);box-shadow:var(--gg);}
+.seqc.plit{background:#001020;border-color:var(--cyan);}
+.seqc.wlit{background:#1a0006;border-color:var(--red);}
+.seqs{font-size:10px;color:var(--text3);text-align:center;letter-spacing:2px;}
+/* Path */
+.ptimer{font-size:10px;color:var(--orange);text-align:center;letter-spacing:2px;}
+#pwrap{display:grid;gap:3px;margin:5px auto;width:fit-content;}
+.pc{width:42px;height:42px;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .08s;}
+.pc.wall{background:#0e0000;border-color:#2a1010;}
+.pc.player{background:#001a10;border-color:var(--green);box-shadow:var(--gg);}
+.pc.goal{background:#001020;border-color:var(--cyan);animation:lp .9s infinite;}
+.pc.trail{background:#001408;border-color:#003518;}
+/* Wire Cut */
+.wcgrid{width:100%;max-width:350px;}
+.wcrow{display:flex;gap:8px;align-items:center;margin-bottom:7px;}
+.wclbl{font-size:10px;color:var(--text3);width:58px;letter-spacing:1px;}
+.wcwire{flex:1;height:13px;border-radius:2px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.wcwire::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 6px,rgba(0,0,0,.3) 6px,rgba(0,0,0,.3) 8px);}
+.wcwire:hover{filter:brightness(1.5);}
+.wcwire.cut{opacity:.2;cursor:not-allowed;}
+.wcwire.bad{animation:shk .25s;}
+/* Binary */
+.bddisp{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--cyan);letter-spacing:6px;text-align:center;background:var(--panel);padding:11px 18px;border:1px solid var(--border);margin-bottom:10px;}
+.bdopts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:400px;}
+.bdopt{padding:8px 15px;background:var(--panel);border:1px solid var(--border);color:var(--text2);font-family:'Orbitron',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:2px;}
+.bdopt:hover{border-color:var(--cyan);color:var(--cyan);}
+.bdopt.ok{border-color:var(--green);color:var(--green);background:#001a0e;}
+.bdopt.no{border-color:var(--red);color:var(--red);}
+/* Result */
+#hresult{display:none;position:absolute;inset:0;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;gap:17px;z-index:100;}
+#hresult.show{display:flex;}
+.rtitle{font-family:'Orbitron',sans-serif;font-size:30px;letter-spacing:6px;}
+.rsub{font-size:12px;color:var(--text2);}
+.rrews{display:flex;gap:17px;}
+.rrew{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.rewi{font-size:24px;}
+.rewv{font-family:'Orbitron',sans-serif;font-size:16px;color:var(--green);}
+.rewl{font-size:9px;color:var(--text3);letter-spacing:2px;}
+.rbtn{padding:10px 26px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;cursor:pointer;transition:all .15s;}
+.rbtn:hover{background:#001a0e;box-shadow:var(--gg);}
+/* ADMIN */
+#screen-admin{flex-direction:column;overflow:hidden;}
+.adhdr{background:var(--panel);border-bottom:1px solid var(--red);padding:13px 20px;display:flex;align-items:center;gap:11px;flex-shrink:0;}
+.adhdr h1{font-family:'Orbitron',sans-serif;font-size:17px;color:var(--red);letter-spacing:4px;}
+.adbadge{background:var(--red);color:#fff;font-size:8px;padding:2px 7px;letter-spacing:2px;}
+.adbody{flex:1;overflow-y:auto;padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;}
+.adsec{background:var(--panel);border:1px solid var(--border);padding:13px;}
+.adsec h3{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--red);letter-spacing:3px;margin-bottom:11px;}
+.adrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;}
+.adrow label{font-size:10px;color:var(--text2);white-space:nowrap;}
+.adinput{background:var(--bg);border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:4px 8px;width:88px;text-align:right;}
+.adinput:focus{outline:none;border-color:var(--cyan);}
+.adbtn{padding:6px 12px;background:transparent;border:1px solid var(--red);color:var(--red);font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .15s;width:100%;margin-top:4px;}
+.adbtn:hover{background:#1a0006;}
+.adbtn.safe{border-color:var(--green);color:var(--green);}
+.adbtn.safe:hover{background:#001a0e;}
+.adlog{font-size:9px;color:var(--green);margin-top:4px;min-height:13px;}
+/* GATE */
+#agate{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;}
+#agate.open{display:flex;}
+.gbox{background:var(--panel);border:1px solid var(--red);padding:27px;text-align:center;width:295px;}
+.gbox h2{font-family:'Orbitron',sans-serif;color:var(--red);font-size:15px;letter-spacing:4px;margin-bottom:16px;}
+.gicon{font-size:36px;margin-bottom:13px;}
+#acode{background:var(--bg);border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:21px;padding:8px;width:100%;text-align:center;letter-spacing:8px;margin-bottom:9px;}
+#acode:focus{outline:none;border-color:var(--red);}
+.gerr{color:var(--red);font-size:10px;margin-top:5px;height:13px;}
+/* TOAST */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--panel);border:1px solid var(--green);padding:9px 18px;font-size:11px;color:var(--green);letter-spacing:2px;z-index:9000;transition:transform .22s;pointer-events:none;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.err{border-color:var(--red);color:var(--red);}
+.luf{position:fixed;inset:0;background:rgba(0,255,136,.04);pointer-events:none;z-index:8000;animation:lufa .7s forwards;}
+@keyframes lufa{0%{opacity:1}100%{opacity:0}}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}::-webkit-scrollbar-thumb:hover{background:var(--cyan);}
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="screen-menu" class="screen active">
+  <div class="mgrid"></div>
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div class="logo">HACKNET</div>
+    <div class="logo-s">Digital Infiltration System</div>
+    <div class="logo-v">v2.0 — STABLE BUILD</div>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn p" onclick="goToGame()">▶ LAUNCH TERMINAL</button>
+    <button class="mbtn" onclick="showScreen('howtoplay')">◈ HOW TO PLAY</button>
+    <button class="mbtn" onclick="showScreen('credits')">◆ CREDITS</button>
+  </div>
+  <div class="mfoot">
+    <p>Published by @fypsiah &nbsp;·&nbsp; Scripted by claude.ai</p>
+    <p style="margin-top:2px;color:#0c1e28;font-size:8px;">10114</p>
+  </div>
+</div>
+
+<!-- HOW TO PLAY -->
+<div id="screen-howtoplay" class="screen sub-screen">
+  <div class="sub-hdr"><button class="bbtn" onclick="showScreen('menu')">← BACK</button><h1>HOW TO PLAY</h1></div>
+  <div class="sub-body"><div class="hgrid">
+    <div class="hcard"><h3>🎯 OBJECTIVE</h3><p>Infiltrate systems, bypass security layers and extract data before being fully traced. Every successful hack earns Data (currency) and XP to level up.</p></div>
+    <div class="hcard"><h3>🔄 THE LOOP</h3><ul><li>Select an available target from the Targets tab</li><li>Complete minigames to breach each security layer</li><li>Keep Trace below 100% — hit it and the hack fails</li><li>Spend Data to upgrade tools in the Tools tab</li><li>Level up to unlock the next tier of targets</li></ul></div>
+    <div class="hcard"><h3>🧩 MINIGAMES</h3><ul><li><b style="color:var(--cyan)">Timing Grid</b> — click when bar enters green zone</li><li><b style="color:var(--cyan)">Code Match</b> — select symbols matching the sequence</li><li><b style="color:var(--cyan)">Sequence</b> — memorise then repeat the lit pattern</li><li><b style="color:var(--cyan)">Path Trace</b> — navigate to goal (WASD / arrows)</li><li><b style="color:var(--cyan)">Wire Cut</b> — cut the correct wire from the directive</li><li><b style="color:var(--cyan)">Binary Decode</b> — convert binary string to decimal</li></ul></div>
+    <div class="hcard"><h3>📡 TRACE METER</h3><p>Every action fills trace. Mistakes and loud tools spike it faster. Stealth reduces it. At 100% the hack is blown and all rewards are lost.</p></div>
+    <div class="hcard"><h3>🔧 TOOLS</h3><p>Upgrade tools with Data. Higher-tier tools (Ghost, Exploit) require higher player levels. Each tool has a cooldown per hack — use them wisely.</p></div>
+    <div class="hcard"><h3>📈 LEVELLING UP</h3><p>Each level unlocks 2–3 new targets. Difficulty scales from Easy (LVL 1) to Void-tier (LVL 10). Higher targets have more layers, harder minigames, and faster trace.</p></div>
+    <div class="hcard"><h3>🗺️ NETWORK MAP</h3><p>The Network tab shows the global node map across 8 zones from Local Networks to the hidden GENESIS cluster. Hover nodes for stats.</p></div>
+    <div class="hcard"><h3>💡 TIPS</h3><ul><li>Use Stealth early — it compounds across all layers</li><li>Binary Decode and Wire Cut are all-or-nothing</li><li>Ghost Protocol drops 25% trace instantly</li><li>Exploit Kit auto-clears a layer with zero trace</li></ul></div>
+  </div></div>
+</div>
+
+<!-- CREDITS -->
+<div id="screen-credits" class="screen">
+  <div style="position:absolute;top:14px;left:14px;z-index:2;"><button class="bbtn" onclick="showScreen('menu')">← BACK</button></div>
+  <div class="crbox">
+    <h1>CREDITS</h1>
+    <div class="crow"><div class="role">Published by</div><div class="name">@fypsiah</div></div>
+    <div class="cdiv"></div>
+    <div class="crow"><div class="role">User Interface & Design</div><div class="name">@fypsiah</div></div>
+    <div class="cdiv"></div>
+    <div class="crow"><div class="role">Concept</div><div class="name">@fypsiah</div></div>
+    <div class="cdiv"></div>
+    <div class="crow"><div class="role">Scripted by</div><div class="name">claude.ai</div></div>
+    <div style="margin-top:38px;color:#0c1e28;font-size:9px;letter-spacing:2px;text-align:center;">10114</div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen" style="flex-direction:column;">
+  <div id="topbar">
+    <div class="tlogo">HACKNET</div>
+    <div class="tlvl">
+      <div class="lvrow"><span class="lvbadge" id="hud-lv">LVL 1</span><span class="xplbl" id="hud-xp">0 / 100 XP</span></div>
+      <div class="xptrack"><div class="xpfill" id="hud-xpb" style="width:0%"></div></div>
+    </div>
+    <div class="tdata"><div class="dval" id="hud-data">0</div><div class="dlbl">DATA</div></div>
+    <div class="alock" onclick="openGate()" title="Admin">🔒</div>
+  </div>
+  <div id="gtabs">
+    <div class="gtab active" id="tb-targets" onclick="swTab('targets')">TARGETS</div>
+    <div class="gtab" id="tb-network" onclick="swTab('network')">NETWORK</div>
+    <div class="gtab" id="tb-tools" onclick="swTab('tools')">TOOLS</div>
+  </div>
+  <div class="tpanel active" id="tab-targets"><div id="tlist" style="width:100%;"></div></div>
+  <div class="tpanel" id="tab-network"><svg id="nsvg"></svg><div class="ntt" id="ntt"><div class="ttname" id="ttn"></div><div class="ttinfo" id="tti"></div></div></div>
+  <div class="tpanel" id="tab-tools"><div class="tsgrid" id="tsgrid"></div></div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen" style="flex-direction:column;">
+  <div class="adhdr">
+    <button class="bbtn" style="border-color:var(--red);color:var(--red);" onclick="showScreen('game')">← EXIT</button>
+    <h1>ADMIN PANEL</h1><span class="adbadge">⚠ ROOT</span>
+  </div>
+  <div class="adbody">
+    <div class="adsec"><h3>💾 DATA</h3><div class="adrow"><label>Set Data</label><input class="adinput" type="number" id="ad-data"></div><button class="adbtn safe" onclick="adSetData()">APPLY</button><div class="adlog" id="adl-data"></div></div>
+    <div class="adsec"><h3>📈 LEVEL</h3><div class="adrow"><label>Level (1–10)</label><input class="adinput" type="number" id="ad-lv" min="1" max="10"></div><div class="adrow"><label>XP</label><input class="adinput" type="number" id="ad-xp"></div><button class="adbtn safe" onclick="adSetLevel()">APPLY</button><div class="adlog" id="adl-lv"></div></div>
+    <div class="adsec"><h3>🔧 TOOLS</h3><div id="ad-trows"></div><button class="adbtn safe" onclick="adSetTools()">APPLY</button><button class="adbtn" style="margin-top:5px;" onclick="adMaxTools()">MAX ALL</button><div class="adlog" id="adl-tools"></div></div>
+    <div class="adsec"><h3>🎯 TARGETS</h3><div id="ad-tgtrows" style="max-height:190px;overflow-y:auto;margin-bottom:7px;"></div><button class="adbtn safe" onclick="adUnlockAll()">UNLOCK ALL</button><div class="adlog" id="adl-tgts"></div></div>
+    <div class="adsec"><h3>⚙ MODIFIERS</h3><div class="adrow"><label>Trace Speed ×</label><input class="adinput" type="number" id="ad-trace" step="0.1" min="0" max="5"></div><div class="adrow"><label>XP Mult ×</label><input class="adinput" type="number" id="ad-xpm" step="0.5" min="1" max="20"></div><button class="adbtn safe" onclick="adSetMods()">APPLY</button><div class="adlog" id="adl-mods"></div></div>
+    <div class="adsec" style="border-color:#ff335533;"><h3 style="color:var(--red);">⚠ DANGER</h3><p style="font-size:10px;color:var(--text3);margin-bottom:9px;">Irreversible actions.</p><button class="adbtn" style="margin-bottom:5px;" onclick="adReset()">🗑 RESET SAVE</button><button class="adbtn" onclick="adCompleteAll()">✅ MARK ALL DONE</button><div class="adlog" id="adl-danger"></div></div>
+  </div>
+</div>
+
+<!-- HACK MODAL -->
+<div id="hmodal">
+  <div id="hbox">
+    <div id="hhdr"><div id="htitle">BREACH</div><button id="hclose" onclick="closeHack()">✕</button></div>
+    <div id="htrace"><div id="tlbl">TRACE</div><div id="tbg"><div id="tbar"></div></div><div id="tpct">0%</div></div>
+    <div id="hlayers"></div>
+    <div id="hgame"></div>
+    <div id="htools"><span class="htlbl">TOOLS:</span></div>
+    <div id="hresult">
+      <div class="rtitle" id="rtitle"></div>
+      <div class="rsub" id="rsub"></div>
+      <div class="rrews" id="rrews"></div>
+      <button class="rbtn" onclick="closeHack()">DISCONNECT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN GATE -->
+<div id="agate">
+  <div class="gbox">
+    <div class="gicon">🔒</div>
+    <h2>ADMIN ACCESS</h2>
+    <p style="font-size:10px;color:var(--text3);margin-bottom:13px;letter-spacing:2px;">Authorization Required</p>
+    <input type="password" id="acode" maxlength="8" placeholder="_ _ _ _ _" oninput="checkCode()" onkeydown="if(event.key==='Escape')closeGate()">
+    <div class="gerr" id="gerr"></div>
+    <button class="bbtn" style="margin-top:13px;width:100%;display:flex;justify-content:center;" onclick="closeGate()">CANCEL</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  TARGETS  (25 targets, LVL 1–10)
+// ═══════════════════════════════════════
+const TARGETS=[
+  // LVL 1 — Local Network
+  {id:'t01',name:'HOME_ROUTER_7A',zone:'Local Network',diff:1,layers:2,reward:80,xp:30,req:1,fw:1,desc:'Unsecured home router on default firmware.'},
+  {id:'t02',name:'SMART_TV_LINK',zone:'Local Network',diff:1,layers:2,reward:100,xp:35,req:1,fw:1,desc:'IoT smart TV with open telemetry port.'},
+  // LVL 2 — Corporate Grid
+  {id:'t03',name:'CORP_MAILSRV_01',zone:'Corporate Grid',diff:2,layers:3,reward:240,xp:70,req:2,fw:2,desc:'Corporate mail server with basic firewall.'},
+  {id:'t04',name:'RETAIL_POS_NET',zone:'Corporate Grid',diff:2,layers:3,reward:280,xp:80,req:2,fw:2,desc:'Point-of-sale network with light encryption.'},
+  // LVL 3 — Corporate Core
+  {id:'t05',name:'BANK_NODE_ALPHA',zone:'Corporate Grid',diff:3,layers:4,reward:550,xp:140,req:3,fw:3,desc:'Financial access node. Adaptive firewall active.'},
+  {id:'t06',name:'MEDTECH_DB_07',zone:'Corporate Grid',diff:3,layers:4,reward:600,xp:150,req:3,fw:3,desc:'Medical records database with layered encryption.'},
+  {id:'t07',name:'LOGISTIC_HUB_3C',zone:'Corporate Grid',diff:3,layers:4,reward:500,xp:130,req:3,fw:3,desc:'Global shipping logistics coordination node.'},
+  // LVL 4 — Government Perimeter
+  {id:'t08',name:'GOVNET_ENTRY_B2',zone:'Government Systems',diff:4,layers:5,reward:1100,xp:280,req:4,fw:4,desc:'Government perimeter node. IDS enabled.'},
+  {id:'t09',name:'DEFENSE_RELAY_9',zone:'Government Systems',diff:4,layers:5,reward:1250,xp:300,req:4,fw:4,desc:'Military relay server. Multi-layer cryptography.'},
+  // LVL 5 — Government Core
+  {id:'t10',name:'INTEL_ARCHIVE_X',zone:'Government Systems',diff:5,layers:5,reward:2000,xp:450,req:5,fw:5,desc:'Classified intelligence archive. Active counter-intrusion.'},
+  {id:'t11',name:'CENSUS_MAINFRAME',zone:'Government Systems',diff:5,layers:5,reward:1800,xp:400,req:5,fw:5,desc:'National census mainframe. Restricted access.'},
+  // LVL 6 — Global Network
+  {id:'t12',name:'NEXUS_CORE_ZERO',zone:'Global Network',diff:5,layers:6,reward:3200,xp:700,req:6,fw:5,desc:'Unknown origin node. Highest civilian-tier value.'},
+  {id:'t13',name:'TELECOM_BACKBONE',zone:'Global Network',diff:5,layers:6,reward:2900,xp:650,req:6,fw:5,desc:'Intercontinental telecom routing backbone.'},
+  {id:'t14',name:'SATELLITE_CMD_7',zone:'Global Network',diff:5,layers:6,reward:3000,xp:680,req:6,fw:5,desc:'Satellite command uplink with real-time monitoring.'},
+  // LVL 7 — Deep State Grid
+  {id:'t15',name:'SHADOW_EXCHANGE',zone:'Deep State Grid',diff:6,layers:6,reward:5000,xp:1100,req:7,fw:6,desc:'Covert financial exchange. Phantom trace protocols.'},
+  {id:'t16',name:'BLACKSITE_NODE_X',zone:'Deep State Grid',diff:6,layers:6,reward:5500,xp:1200,req:7,fw:6,desc:'Classified off-book server cluster. Location masked.'},
+  {id:'t17',name:'PSYOPS_RELAY_0',zone:'Deep State Grid',diff:6,layers:7,reward:4800,xp:1050,req:7,fw:6,desc:'Psychological operations broadcast relay.'},
+  // LVL 8 — Dark Infrastructure
+  {id:'t18',name:'DARK_DNS_ROOT',zone:'Dark Infrastructure',diff:6,layers:7,reward:7000,xp:1500,req:8,fw:6,desc:'Shadow DNS root — controls hidden TLD resolution.'},
+  {id:'t19',name:'BOTNET_C2_NODE',zone:'Dark Infrastructure',diff:6,layers:7,reward:6500,xp:1400,req:8,fw:6,desc:'C2 server for a major undiscovered botnet.'},
+  {id:'t20',name:'ZERO_DAY_REPO',zone:'Dark Infrastructure',diff:6,layers:7,reward:7500,xp:1600,req:8,fw:6,desc:'Repository of unreported zero-day exploits.'},
+  // LVL 9 — Apex Systems
+  {id:'t21',name:'QUANTUM_VAULT_QX',zone:'Apex Systems',diff:7,layers:8,reward:12000,xp:2500,req:9,fw:7,desc:'Quantum-encrypted vault. Requires expert bypass chains.'},
+  {id:'t22',name:'GHOST_PROTOCOL_0',zone:'Apex Systems',diff:7,layers:8,reward:11000,xp:2300,req:9,fw:7,desc:'Self-aware intrusion system. Fights back in real time.'},
+  // LVL 10 — GENESIS
+  {id:'t23',name:'GENESIS_MAINFRAME',zone:'ENDGAME — GENESIS',diff:7,layers:9,reward:20000,xp:4000,req:10,fw:7,desc:'The primordial network node. Origin of all tracked systems.'},
+  {id:'t24',name:'ARCHITECT_TERMINAL',zone:'ENDGAME — GENESIS',diff:7,layers:9,reward:18000,xp:3500,req:10,fw:7,desc:'Personal terminal of the network architect.'},
+  {id:'t25',name:'THE_VOID_NODE',zone:'ENDGAME — GENESIS',diff:7,layers:9,reward:25000,xp:5000,req:10,fw:7,desc:'Unregistered. No known owner. Maximum bounty.'},
+];
+
+const TOOLS=[
+  {id:'brute',name:'BRUTE FORCE',icon:'🔨',desc:'Skips the current layer at the cost of high trace.',maxLv:5,base:150,mult:2.0,lreq:[1,1,2,3,4]},
+  {id:'stealth',name:'STEALTH MODULE',icon:'👁',desc:'Reduces trace gain for 15 seconds.',maxLv:5,base:200,mult:2.2,lreq:[1,2,3,4,5]},
+  {id:'decrypt',name:'DECRYPTOR',icon:'🔐',desc:'Widens timing zones and simplifies code matching.',maxLv:5,base:180,mult:2.0,lreq:[1,1,3,4,5]},
+  {id:'overclock',name:'OVERCLOCK',icon:'⚡',desc:'Slows minigame speed for 12 seconds.',maxLv:5,base:220,mult:2.5,lreq:[1,2,3,4,5]},
+  {id:'scanner',name:'SCANNER',icon:'📡',desc:'Reduces trace at the start of each hack.',maxLv:5,base:160,mult:1.8,lreq:[1,1,2,3,4]},
+  {id:'ghost',name:'GHOST PROTOCOL',icon:'👻',desc:'Drops trace by 25% instantly. Single use per hack.',maxLv:5,base:500,mult:2.8,lreq:[4,5,6,7,8]},
+  {id:'exploit',name:'EXPLOIT KIT',icon:'💉',desc:'Auto-clears one layer with zero trace. Single use per hack.',maxLv:5,base:600,mult:3.0,lreq:[5,6,7,8,9]},
+];
+
+// XP thresholds (cumulative) per level
+const XPT=[0,100,280,520,840,1280,1900,2750,3850,5300,7200];
+
+const DNAMES=['','EASY','NORMAL','HARD','EXPERT','ELITE','PHANTOM','VOID'];
+const ZONE_COLORS={'Local Network':'#00ff88','Corporate Grid':'#00e5ff','Government Systems':'#ff9900','Global Network':'#aa44ff','Deep State Grid':'#ff3355','Dark Infrastructure':'#ff0066','Apex Systems':'#ff44ff','ENDGAME — GENESIS':'#ffffff'};
+
+// ═══════════════════════════════════════
+//  SAVE
+// ═══════════════════════════════════════
+const SK='hacknet_v2_save';
+function defSave(){return{data:0,level:1,xp:0,tools:{},done:{},unlocked:['t01','t02'],mods:{trace:1,xp:1}};}
+function loadSave(){try{const s=localStorage.getItem(SK);if(s)return Object.assign(defSave(),JSON.parse(s));}catch(e){}return defSave();}
+function save(){localStorage.setItem(SK,JSON.stringify(GS));}
+let GS=loadSave();
+
+// ═══════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════
+function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+n).classList.add('active');}
+function goToGame(){showScreen('game');updateHUD();renderTargets();renderTools();renderNet();}
+function swTab(n){document.querySelectorAll('.tpanel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.gtab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');document.getElementById('tb-'+n).classList.add('active');if(n==='network')renderNet();}
+
+// ═══════════════════════════════════════
+//  HUD
+// ═══════════════════════════════════════
+function updateHUD(){
+  document.getElementById('hud-lv').textContent='LVL '+GS.level;
+  document.getElementById('hud-data').textContent=GS.data.toLocaleString();
+  const fl=XPT[GS.level-1]||0,nx=XPT[GS.level]||99999;
+  const pct=GS.level>=10?100:Math.min(100,((GS.xp-fl)/(nx-fl))*100);
+  document.getElementById('hud-xpb').style.width=pct+'%';
+  document.getElementById('hud-xp').textContent=GS.xp+' / '+(GS.level>=10?'MAX':nx)+' XP';
+}
+function addXP(amt){
+  GS.xp+=amt; let lv=false;
+  while(GS.level<10&&GS.xp>=XPT[GS.level]){GS.level++;lv=true;unlockAtLevel(GS.level);const f=document.createElement('div');f.className='luf';document.body.appendChild(f);setTimeout(()=>f.remove(),800);showToast('LEVEL UP → LVL '+GS.level);}
+  if(lv){renderTargets();renderTools();}
+  save();updateHUD();return lv;
+}
+function unlockAtLevel(lv){TARGETS.forEach(t=>{if(t.req<=lv&&!GS.unlocked.includes(t.id))GS.unlocked.push(t.id);});}
+
+// ═══════════════════════════════════════
+//  TARGETS RENDER
+// ═══════════════════════════════════════
+function renderTargets(){
+  const list=document.getElementById('tlist');list.innerHTML='';
+  const avail=TARGETS.filter(t=>t.req<=GS.level);
+  const next=TARGETS.filter(t=>t.req===GS.level+1);
+  const zones=[...new Set(avail.map(t=>t.zone))];
+  zones.forEach(z=>{
+    const zh=document.createElement('div');zh.className='zhead';zh.textContent=z;list.appendChild(zh);
+    const g=document.createElement('div');g.className='tgrid';
+    avail.filter(t=>t.zone===z).forEach(t=>{
+      const d=GS.done[t.id]||0;
+      const card=document.createElement('div');card.className='tcard';card.onclick=()=>startHack(t.id);
+      card.innerHTML=`<div class="tchead"><div class="tcname">${t.name}</div><div class="tcdiff d${t.diff}">${DNAMES[t.diff]}</div></div><div class="tcdesc">${t.desc}</div><div class="tcmeta"><span>💾 ${t.reward}</span><span>⭐ ${t.xp} XP</span><span>FW-${t.fw}</span><span>${t.layers} layers</span></div>${d?`<div class="tcdone">✓ completed ${d}×</div>`:''}`;
+      g.appendChild(card);
+    });
+    list.appendChild(g);
+  });
+  if(next.length&&GS.level<10){
+    const nb=document.createElement('div');nb.className='nxtblock';
+    nb.innerHTML=`<div><div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text3);letter-spacing:2px;">${next.length} target${next.length>1?'s':''} locked</div><div style="font-size:9px;color:var(--text3);margin-top:3px;">${next.map(t=>t.name).join(' · ')}</div></div><div style="text-align:right;"><div style="font-size:9px;color:var(--text3);">unlocks at</div><div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--yellow);margin-top:2px;">LVL ${GS.level+1}</div></div>`;
+    list.appendChild(nb);
+  }
+}
+
+// ═══════════════════════════════════════
+//  TOOLS RENDER
+// ═══════════════════════════════════════
+function renderTools(){
+  const g=document.getElementById('tsgrid');g.innerHTML='';
+  TOOLS.forEach(tool=>{
+    const lv=GS.tools[tool.id]||0,maxed=lv>=tool.maxLv;
+    const cost=maxed?0:Math.round(tool.base*Math.pow(tool.mult,lv));
+    const req=tool.lreq[Math.min(lv,tool.lreq.length-1)];
+    const can=!maxed&&GS.data>=cost&&GS.level>=req;
+    const pips=Array.from({length:tool.maxLv},(_,i)=>`<div class="topip" style="background:${i<lv?'var(--cyan)':'var(--border)'};"></div>`).join('');
+    const card=document.createElement('div');card.className='toolcard';
+    card.innerHTML=`<div class="tohead"><div class="toicon">${tool.icon}</div><div style="flex:1;"><div class="toname">${tool.name}</div><div class="topips">${pips}</div></div><div class="tolvl">${maxed?'MAX':lv?'LVL '+lv:'—'}</div></div><div class="todesc">${tool.desc}</div>${!maxed?`<button class="toupg" onclick="upgTool('${tool.id}')" ${can?'':'disabled'}>${GS.level<req?`LVL ${req} REQ`:can?`UPGRADE · ${cost} DATA`:`NEED ${cost} DATA`}</button>`:`<div style="text-align:center;color:var(--green);font-size:9px;padding:5px;letter-spacing:2px;opacity:.6;">FULLY UPGRADED</div>`}`;
+    g.appendChild(card);
+  });
+}
+function upgTool(id){
+  const t=TOOLS.find(x=>x.id===id);const lv=GS.tools[id]||0;if(lv>=t.maxLv)return;
+  const cost=Math.round(t.base*Math.pow(t.mult,lv));if(GS.data<cost){showToast('Insufficient data',true);return;}
+  GS.data-=cost;GS.tools[id]=lv+1;save();renderTools();updateHUD();showToast(`${t.name} → LVL ${GS.tools[id]}`);
+}
+
+// ═══════════════════════════════════════
+//  NETWORK MAP
+// ═══════════════════════════════════════
+const ZONE_FX={'Local Network':.08,'Corporate Grid':.24,'Government Systems':.42,'Global Network':.58,'Deep State Grid':.70,'Dark Infrastructure':.82,'Apex Systems':.90,'ENDGAME — GENESIS':.96};
+const ZONE_FY={'Local Network':.5,'Corporate Grid':.38,'Government Systems':.6,'Global Network':.32,'Deep State Grid':.68,'Dark Infrastructure':.42,'Apex Systems':.7,'ENDGAME — GENESIS':.25};
+function renderNet(){
+  const svg=document.getElementById('nsvg');const W=svg.clientWidth||800,H=svg.clientHeight||500;
+  svg.innerHTML='';const ns='http://www.w3.org/2000/svg';
+  const pos={};const zg={};
+  TARGETS.forEach(t=>{if(!zg[t.zone])zg[t.zone]=[];zg[t.zone].push(t);});
+  Object.entries(zg).forEach(([z,ts])=>{
+    const cx=(ZONE_FX[z]||.5)*W,cy=(ZONE_FY[z]||.5)*H;
+    ts.forEach((t,i)=>{const a=(i/ts.length)*Math.PI*2-(Math.PI/2),r=ts.length>1?48:0;pos[t.id]={x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r};});
+    const c=ZONE_COLORS[z]||'#aaa';
+    const el=document.createElementNS(ns,'ellipse');el.setAttribute('cx',cx);el.setAttribute('cy',cy);el.setAttribute('rx','80');el.setAttribute('ry','60');el.setAttribute('fill',c+'09');el.setAttribute('stroke',c+'20');el.setAttribute('stroke-width','1');svg.appendChild(el);
+    const lb=document.createElementNS(ns,'text');lb.setAttribute('x',cx);lb.setAttribute('y',cy-54);lb.setAttribute('text-anchor','middle');lb.setAttribute('fill',c+'55');lb.setAttribute('font-size','7');lb.setAttribute('font-family','Share Tech Mono,monospace');lb.setAttribute('letter-spacing','2');lb.textContent=z.toUpperCase();svg.appendChild(lb);
+  });
+  // connections
+  const conn=[['t01','t02'],['t02','t03'],['t03','t04'],['t04','t05'],['t05','t06'],['t06','t07'],['t07','t08'],['t08','t09'],['t09','t10'],['t10','t11'],['t11','t12'],['t12','t13'],['t13','t14'],['t14','t15'],['t15','t16'],['t16','t17'],['t17','t18'],['t18','t19'],['t19','t20'],['t20','t21'],['t21','t22'],['t22','t23'],['t23','t24'],['t24','t25']];
+  conn.forEach(([a,b])=>{
+    const pa=pos[a],pb=pos[b];if(!pa||!pb)return;
+    const ul=GS.unlocked.includes(a)&&GS.unlocked.includes(b);
+    const ln=document.createElementNS(ns,'line');ln.setAttribute('x1',pa.x);ln.setAttribute('y1',pa.y);ln.setAttribute('x2',pb.x);ln.setAttribute('y2',pb.y);ln.setAttribute('stroke',ul?'#00e5ff2a':'#1a3a4a44');ln.setAttribute('stroke-width','1');ln.setAttribute('stroke-dasharray','4 5');svg.appendChild(ln);
+  });
+  TARGETS.forEach(t=>{
+    const p=pos[t.id];if(!p)return;
+    const c=ZONE_COLORS[t.zone]||'#aaa';const ul=GS.unlocked.includes(t.id);const done=GS.done[t.id]>0;
+    const dc=ul?c:'#2a4a5a';
+    const g2=document.createElementNS(ns,'g');g2.style.cursor=ul?'pointer':'default';
+    const outer=document.createElementNS(ns,'circle');outer.setAttribute('cx',p.x);outer.setAttribute('cy',p.y);outer.setAttribute('r','13');outer.setAttribute('fill','transparent');outer.setAttribute('stroke',dc+'40');outer.setAttribute('stroke-width','1');g2.appendChild(outer);
+    const inner=document.createElementNS(ns,'circle');inner.setAttribute('cx',p.x);inner.setAttribute('cy',p.y);inner.setAttribute('r','8');inner.setAttribute('fill',done?dc+'22':'var(--panel)');inner.setAttribute('stroke',dc);inner.setAttribute('stroke-width',ul?'1.5':'1');g2.appendChild(inner);
+    const sym=document.createElementNS(ns,'text');sym.setAttribute('x',p.x);sym.setAttribute('y',p.y+3);sym.setAttribute('text-anchor','middle');sym.setAttribute('fill',dc);sym.setAttribute('font-size','7');sym.setAttribute('font-family','Share Tech Mono,monospace');sym.textContent=done?'✓':t.diff+'★';g2.appendChild(sym);
+    const nl=document.createElementNS(ns,'text');nl.setAttribute('x',p.x);nl.setAttribute('y',p.y+20);nl.setAttribute('text-anchor','middle');nl.setAttribute('fill',dc+'88');nl.setAttribute('font-size','6');nl.setAttribute('font-family','Share Tech Mono,monospace');nl.textContent=t.name.substring(0,10);g2.appendChild(nl);
+    const tt=document.getElementById('ntt');
+    g2.addEventListener('mouseenter',e=>{tt.style.display='block';tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-6)+'px';document.getElementById('ttn').textContent=t.name;document.getElementById('tti').innerHTML=`${t.zone}<br>${DNAMES[t.diff]} · FW-${t.fw}<br>💾 ${t.reward} · ⭐ ${t.xp} XP<br>${ul?(done?'✓ Completed':'🔓 Available'):`🔒 LVL ${t.req}`}`;});
+    g2.addEventListener('mouseleave',()=>{tt.style.display='none';});
+    if(ul)g2.addEventListener('click',()=>{swTab('targets');});
+    svg.appendChild(g2);
+  });
+}
+
+// ═══════════════════════════════════════
+//  HACK ENGINE
+// ═══════════════════════════════════════
+let HS=null;
+function startHack(tid){
+  const t=TARGETS.find(x=>x.id===tid);if(!t)return;
+  HS={t,layer:0,trace:0,finished:false,cds:{},stealth:false,overclock:false,ghostUsed:false,exploitUsed:false,mgInt:null,pathClean:null};
+  if(GS.tools.scanner){HS.trace=Math.max(0,HS.trace-(GS.tools.scanner||0)*4);}
+  document.getElementById('htitle').textContent='⬡ '+t.name;
+  document.getElementById('hresult').classList.remove('show');
+  buildLayers();updateTrace();buildToolBar();
+  document.getElementById('hmodal').classList.add('open');
+  nextLayer();
+}
+function closeHack(){
+  if(HS){if(HS.mgInt)clearInterval(HS.mgInt);if(HS.pathClean)HS.pathClean();document.onkeydown=null;}
+  document.getElementById('hmodal').classList.remove('open');HS=null;
+}
+function buildLayers(){
+  const row=document.getElementById('hlayers');row.innerHTML='';
+  const names=['ENTRY','FW-BREAK','ENCRYPT','CORE','EXTRACT','SECONDARY','DEEP-CORE','BACKDOOR','PHANTOM'];
+  for(let i=0;i<HS.t.layers;i++){const d=document.createElement('div');d.className='hl';d.id='hl'+i;d.textContent=names[i]||'L'+(i+1);row.appendChild(d);}
+}
+function updateLayers(){for(let i=0;i<HS.t.layers;i++){const e=document.getElementById('hl'+i);if(!e)continue;e.className='hl'+(i<HS.layer?' done':i===HS.layer?' active':'');}}
+function updateTrace(){
+  const p=Math.min(100,HS.trace);
+  document.getElementById('tbar').style.width=p+'%';
+  document.getElementById('tpct').textContent=Math.round(p)+'%';
+  document.getElementById('tbar').style.background=p>70?'var(--red)':p>40?'linear-gradient(90deg,var(--orange),var(--red))':'linear-gradient(90deg,var(--green),var(--orange),var(--red))';
+}
+function addTrace(amt){
+  if(!HS||HS.finished)return;
+  let m=GS.mods?.trace??1;if(HS.stealth)m*=0.32;
+  HS.trace=Math.min(100,HS.trace+amt*m);updateTrace();
+  if(HS.trace>=100)hackFail();
+}
+function nextLayer(){
+  if(!HS||HS.finished)return;
+  if(HS.layer>=HS.t.layers){hackSuccess();return;}
+  updateLayers();showMG(pickMG(HS.layer,HS.t.diff));
+}
+function pickMG(layer,diff){
+  // Pool expands with difficulty
+  const pool=diff<=2?['timing','codematch','sequence','path']:['timing','codematch','sequence','path','wirecut','binary'];
+  // Harder layers in same hack get harder MG types
+  const idx=(layer + Math.floor(diff/3)) % pool.length;
+  return pool[idx];
+}
+
+// ═══════════════════════════════════════
+//  MINIGAMES
+// ═══════════════════════════════════════
+function showMG(type){
+  const a=document.getElementById('hgame');a.innerHTML='';
+  if(HS.mgInt){clearInterval(HS.mgInt);HS.mgInt=null;}
+  ({timing:mgTiming,codematch:mgCode,sequence:mgSeq,path:mgPath,wirecut:mgWire,binary:mgBinary}[type]||mgTiming)(a);
+}
+
+// ── TIMING ──
+function mgTiming(a){
+  const diff=HS.t.diff,speed=(1.7+diff*.65)*(HS.overclock?.62:1);
+  const zw=Math.max(5,27-diff*2.2)+(GS.tools.decrypt||0)*2;
+  const zl=18+Math.random()*52;
+  a.innerHTML=`<div class="mgw"><div class="mgt">TIMING GRID</div><div class="mgh">Intercept the signal</div><div style="width:100%;max-width:450px;"><div id="ttrack"><div id="tzone" style="width:${zw}%;left:${zl}%"></div><div id="tslider"></div></div><div id="tres" style="font-family:'Orbitron',sans-serif;font-size:17px;text-align:center;height:26px;margin-top:8px;"></div></div></div>`;
+  let pos=0,dir=1;
+  document.getElementById('ttrack').onclick=()=>{
+    clearInterval(HS.mgInt);HS.mgInt=null;
+    const bl=parseFloat(document.getElementById('tslider').style.left)||0;
+    const zL=parseFloat(document.getElementById('tzone').style.left);
+    if(bl>=zL&&bl<=zL+zw){tHit();}else{tMiss();}
+  };
+  HS.mgInt=setInterval(()=>{pos+=dir*speed*.42;if(pos>=94){pos=94;dir=-1;}if(pos<=0){pos=0;dir=1;}const s=document.getElementById('tslider');if(s)s.style.left=pos+'%';},16);
+}
+function tHit(){const r=document.getElementById('tres');if(r){r.style.color='var(--green)';r.textContent='✓ INTERCEPTED';}addTrace(4+HS.t.diff*1.4);setTimeout(()=>{HS.layer++;nextLayer();},680);}
+function tMiss(){const r=document.getElementById('tres');if(r){r.style.color='var(--red)';r.textContent='✗ MISSED';}addTrace(11+HS.t.diff*3.2);if(HS&&!HS.finished)setTimeout(()=>showMG('timing'),850);}
+
+// ── CODE MATCH ──
+const SYMS=['◈','◇','△','○','◻','⬡','◐','⬟','✦','⊕','⊗','◆','▽','⬢','◉','⊞'];
+function mgCode(a){
+  const diff=HS.t.diff,cnt=Math.min(2+Math.floor(diff*.75),6);
+  const tgts=[];for(let i=0;i<cnt;i++)tgts.push(SYMS[Math.floor(Math.random()*SYMS.length)]);
+  const opts=[...tgts];while(opts.length<8)opts.push(SYMS[Math.floor(Math.random()*SYMS.length)]);
+  opts.sort(()=>Math.random()-.5);let sel=[];
+  a.innerHTML=`<div class="mgw"><div class="mgt">CODE MATCH</div><div class="mgh">Select the sequence in order</div><div class="cmtr" id="cmtr">${tgts.map(s=>`<div class="cmts">${s}</div>`).join('')}</div><div class="cmopts" id="cmopts"></div><div class="cmprog" id="cmprog">0 / ${cnt}</div></div>`;
+  const od=document.getElementById('cmopts');
+  opts.forEach(s=>{
+    const b=document.createElement('div');b.className='cmopt';b.textContent=s;
+    b.onclick=()=>{
+      if(sel.length>=cnt)return;
+      if(s===tgts[sel.length]){b.classList.add('sel');b.onclick=null;sel.push(s);document.getElementById('cmprog').textContent=sel.length+' / '+cnt;if(sel.length===cnt){addTrace(3+diff);setTimeout(()=>{HS.layer++;nextLayer();},580);}}
+      else{b.classList.add('bad');addTrace(10+diff*2.8);sel=[];document.getElementById('cmprog').textContent='0 / '+cnt;setTimeout(()=>b.classList.remove('bad'),350);}
+    };od.appendChild(b);
+  });
+}
+
+// ── SEQUENCE ──
+function mgSeq(a){
+  const diff=HS.t.diff,len=Math.min(2+Math.floor(diff*.85),7),cells=Math.min(4+Math.floor(diff*.5),9);
+  const emj=['🔴','🟦','🟩','🟡','🟣','🔵','🟠','🟤','⚫'];
+  const seq=[];for(let i=0;i<len;i++)seq.push(Math.floor(Math.random()*cells));
+  const cols=Math.ceil(Math.sqrt(cells));
+  a.innerHTML=`<div class="mgw"><div class="mgt">SEQUENCE</div><div class="mgh" id="sqhint">Watch the pattern...</div><div class="seqg" id="sqg" style="grid-template-columns:repeat(${cols},1fr);pointer-events:none;max-width:300px;"></div><div class="seqs" id="sqst">Memorise</div></div>`;
+  const grid=document.getElementById('sqg');
+  for(let i=0;i<cells;i++){const c=document.createElement('div');c.className='seqc';c.id='sc'+i;c.textContent=emj[i];grid.appendChild(c);}
+  let pSeq=[],phase='show';
+  function flash(idx){
+    if(idx>=seq.length){setTimeout(()=>{phase='input';document.getElementById('sqhint').textContent='Repeat the sequence';document.getElementById('sqst').textContent='0 / '+len;grid.style.pointerEvents='all';},320);return;}
+    const c=document.getElementById('sc'+seq[idx]);c.classList.add('lit');
+    setTimeout(()=>{c.classList.remove('lit');setTimeout(()=>flash(idx+1),HS.overclock?180:280);},HS.overclock?320:460);
+  }
+  setTimeout(()=>flash(0),480);
+  grid.querySelectorAll('.seqc').forEach((c,i)=>{
+    c.onclick=()=>{
+      if(phase!=='input')return;pSeq.push(i);c.classList.add('plit');setTimeout(()=>c.classList.remove('plit'),220);
+      if(pSeq[pSeq.length-1]!==seq[pSeq.length-1]){c.classList.add('wlit');setTimeout(()=>c.classList.remove('wlit'),320);addTrace(11+HS.t.diff*2.8);pSeq=[];document.getElementById('sqst').textContent='0 / '+len;if(HS&&!HS.finished)setTimeout(()=>{phase='show';pSeq=[];grid.style.pointerEvents='none';flash(0);},650);}
+      else{document.getElementById('sqst').textContent=pSeq.length+' / '+len;if(pSeq.length===len){addTrace(3+HS.t.diff);setTimeout(()=>{HS.layer++;nextLayer();},580);}}
+    };
+  });
+}
+
+// ── PATH TRACE ──
+function mgPath(a){
+  const diff=HS.t.diff,sz=4+Math.floor(diff*.5),wc=.11+diff*.038;
+  const grid=[];for(let r=0;r<sz;r++){grid.push([]);for(let c=0;c<sz;c++)grid[r].push(0);}
+  for(let r=0;r<sz;r++)for(let c=0;c<sz;c++){if((r===0&&c===0)||(r===sz-1&&c===sz-1))continue;if(Math.random()<wc)grid[r][c]=1;}
+  let px=0,py=0,done=false;const gx=sz-1,gy=sz-1;const trail=new Set(['0,0']);
+  let tl=7+(5-Math.min(diff,5))*3;
+  a.innerHTML=`<div class="mgw"><div class="mgt">PATH TRACE</div><div class="mgh">Navigate to target [WASD]</div><div class="ptimer" id="ptimer">⏱ ${tl}s</div><div id="pwrap" style="grid-template-columns:repeat(${sz},42px);"></div></div>`;
+  function draw(){const w=document.getElementById('pwrap');if(!w)return;w.innerHTML='';for(let r=0;r<sz;r++)for(let c=0;c<sz;c++){const cell=document.createElement('div');cell.className='pc';if(grid[r][c])cell.classList.add('wall'),cell.textContent='▪';else if(r===py&&c===px)cell.classList.add('player'),cell.textContent='◉';else if(r===gy&&c===gx)cell.classList.add('goal'),cell.textContent='⬡';else if(trail.has(c+','+r))cell.classList.add('trail');w.appendChild(cell);}}
+  draw();
+  const tmr=setInterval(()=>{if(done){clearInterval(tmr);return;}tl--;const t=document.getElementById('ptimer');if(t)t.textContent='⏱ '+tl+'s';if(tl<=0){done=true;clearInterval(tmr);addTrace(13+diff*2.8);if(HS&&!HS.finished)setTimeout(()=>showMG('path'),650);}},1000);
+  HS.pathClean=()=>{done=true;clearInterval(tmr);};
+  function mv(dr,dc){if(done)return;const nr=py+dr,nc=px+dc;if(nr<0||nr>=sz||nc<0||nc>=sz||grid[nr][nc])return;py=nr;px=nc;trail.add(px+','+py);draw();if(px===gx&&py===gy){done=true;clearInterval(tmr);addTrace(4+diff);setTimeout(()=>{HS.layer++;nextLayer();},580);}}
+  document.onkeydown=e=>{if(!HS||HS.finished)return;if(e.key==='ArrowUp'||e.key==='w'){e.preventDefault();mv(-1,0);}if(e.key==='ArrowDown'||e.key==='s'){e.preventDefault();mv(1,0);}if(e.key==='ArrowLeft'||e.key==='a'){e.preventDefault();mv(0,-1);}if(e.key==='ArrowRight'||e.key==='d'){e.preventDefault();mv(0,1);}};
+}
+
+// ── WIRE CUT ──
+const WCOLORS=['#ff3355','#00e5ff','#ffdd00','#00ff88','#aa44ff','#ff9900','#4488ff','#ff66aa'];
+const WNAMES=['ALPHA','BETA','GAMMA','DELTA','EPSILON','ZETA','ETA'];
+function mgWire(a){
+  const diff=HS.t.diff,wires=Math.min(3+Math.floor(diff*.6),7);
+  const correct=Math.floor(Math.random()*wires);
+  const hints=[`Cut ${WNAMES[correct]}`,`Position ${correct+1} from top`,`Cut the ${['first','second','third','fourth','fifth','sixth','seventh'][correct]} wire`];
+  const hint=hints[Math.floor(Math.random()*hints.length)];
+  a.innerHTML=`<div class="mgw"><div class="mgt">WIRE CUT</div><div class="mgh" style="color:var(--yellow);">DIRECTIVE: ${hint}</div><div class="wcgrid" id="wcg"></div></div>`;
+  const g=document.getElementById('wcg');
+  for(let i=0;i<wires;i++){
+    const row=document.createElement('div');row.className='wcrow';
+    const lbl=document.createElement('div');lbl.className='wclbl';lbl.textContent=WNAMES[i];
+    const wire=document.createElement('div');wire.className='wcwire';wire.style.background=WCOLORS[i];
+    wire.onclick=()=>{
+      if(wire.classList.contains('cut'))return;
+      if(i===correct){wire.classList.add('cut');addTrace(3+diff);setTimeout(()=>{HS.layer++;nextLayer();},680);}
+      else{wire.classList.add('bad');addTrace(14+diff*3.5);setTimeout(()=>wire.classList.remove('bad'),380);if(HS&&!HS.finished)setTimeout(()=>showMG('wirecut'),850);}
+    };
+    row.appendChild(lbl);row.appendChild(wire);g.appendChild(row);
+  }
+}
+
+// ── BINARY DECODE ──
+function mgBinary(a){
+  const diff=HS.t.diff,bits=Math.min(4+Math.floor(diff*.55),8);
+  const ans=Math.floor(Math.random()*Math.pow(2,bits));
+  const bin=ans.toString(2).padStart(bits,'0');
+  const opts=new Set([ans]);while(opts.size<4)opts.add(Math.floor(Math.random()*Math.pow(2,bits)));
+  const shuf=[...opts].sort(()=>Math.random()-.5);
+  a.innerHTML=`<div class="mgw"><div class="mgt">BINARY DECODE</div><div class="mgh">Convert to decimal</div><div class="bddisp">${bin}</div><div class="bdopts" id="bdopts"></div></div>`;
+  const od=document.getElementById('bdopts');
+  shuf.forEach(v=>{
+    const b=document.createElement('div');b.className='bdopt';b.textContent=v;
+    b.onclick=()=>{
+      od.querySelectorAll('.bdopt').forEach(x=>x.onclick=null);
+      if(v===ans){b.classList.add('ok');addTrace(3+diff*1.4);setTimeout(()=>{HS.layer++;nextLayer();},680);}
+      else{b.classList.add('no');addTrace(12+diff*3.2);if(HS&&!HS.finished)setTimeout(()=>showMG('binary'),850);}
+    };od.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════
+//  HACK OUTCOME
+// ═══════════════════════════════════════
+function hackSuccess(){
+  if(!HS||HS.finished)return;HS.finished=true;
+  if(HS.pathClean)HS.pathClean();document.onkeydown=null;
+  const t=HS.t,tr=HS.trace;const eff=Math.max(.22,1-(tr/100)*.74);
+  const data=Math.round(t.reward*eff);const xp=Math.round(t.xp*(GS.mods?.xp||1));
+  GS.data+=data;GS.done[t.id]=(GS.done[t.id]||0)+1;
+  const lv=addXP(xp);save();
+  document.getElementById('rtitle').style.color='var(--green)';document.getElementById('rtitle').textContent='ACCESS GRANTED';
+  document.getElementById('rsub').textContent=`Trace: ${Math.round(tr)}%  ·  Efficiency: ${Math.round(eff*100)}%`;
+  document.getElementById('rrews').innerHTML=`<div class="rrew"><div class="rewi">💾</div><div class="rewv">+${data}</div><div class="rewl">DATA</div></div><div class="rrew"><div class="rewi">⭐</div><div class="rewv">+${xp}</div><div class="rewl">XP</div></div>${lv?'<div class="rrew"><div class="rewi">🎉</div><div class="rewv">LVL UP</div><div class="rewl">NEW LEVEL</div></div>':''}`;
+  document.getElementById('hresult').classList.add('show');updateHUD();
+}
+function hackFail(){
+  if(!HS||HS.finished)return;HS.finished=true;
+  if(HS.mgInt)clearInterval(HS.mgInt);if(HS.pathClean)HS.pathClean();document.onkeydown=null;
+  document.getElementById('rtitle').style.color='var(--red)';document.getElementById('rtitle').textContent='TRACED — DISCONNECTED';
+  document.getElementById('rsub').textContent='Security detected your intrusion. All rewards lost.';
+  document.getElementById('rrews').innerHTML='<div class="rrew"><div class="rewi">❌</div><div class="rewv">0</div><div class="rewl">NOTHING GAINED</div></div>';
+  document.getElementById('hresult').classList.add('show');
+}
+
+// ═══════════════════════════════════════
+//  TOOL BAR (in hack)
+// ═══════════════════════════════════════
+function buildToolBar(){
+  const bar=document.getElementById('htools');bar.innerHTML='<span class="htlbl">TOOLS:</span>';
+  TOOLS.forEach(tool=>{
+    const lv=GS.tools[tool.id]||0;if(!lv)return;
+    const cd=HS.cds[tool.id]||0;
+    const btn=document.createElement('div');btn.className='htbtn'+(cd>0?' cd':'');btn.id='htb-'+tool.id;
+    btn.innerHTML=`${tool.icon} ${tool.name.split(' ')[0]}${cd>0?` <span class="htcd">${cd}s</span>`:''}`;
+    btn.onclick=()=>useTool(tool.id);bar.appendChild(btn);
+  });
+}
+function useTool(id){
+  if(!HS)return;const tool=TOOLS.find(t=>t.id===id);const lv=GS.tools[id]||0;if(!lv)return;
+  const cd=Math.max(8,26-lv*4);HS.cds[id]=cd;
+  if(id==='brute'){const tc=18-lv*2;addTrace(tc);HS.layer++;if(HS.layer>=HS.t.layers)hackSuccess();else{updateLayers();showMG(pickMG(HS.layer,HS.t.diff));}}
+  else if(id==='stealth'){HS.stealth=true;showToast('Stealth active 15s');setTimeout(()=>{if(HS)HS.stealth=false;},15000);}
+  else if(id==='decrypt'){showToast('Decryptor active');}
+  else if(id==='overclock'){HS.overclock=true;showToast('Overclock active 12s');setTimeout(()=>{if(HS)HS.overclock=false;},12000);}
+  else if(id==='scanner'){HS.trace=Math.max(0,HS.trace-lv*5);updateTrace();showToast('Scan — trace reduced');}
+  else if(id==='ghost'){if(HS.ghostUsed){showToast('Already used',true);return;}HS.ghostUsed=true;HS.trace=Math.max(0,HS.trace-25);updateTrace();showToast('Ghost Protocol — trace -25%');}
+  else if(id==='exploit'){if(HS.exploitUsed){showToast('Already used',true);return;}HS.exploitUsed=true;HS.layer++;if(HS.layer>=HS.t.layers)hackSuccess();else{updateLayers();showMG(pickMG(HS.layer,HS.t.diff));}showToast('Exploit deployed — layer bypassed');}
+  buildToolBar();
+  const ci=setInterval(()=>{if(!HS){clearInterval(ci);return;}HS.cds[id]=Math.max(0,(HS.cds[id]||0)-1);buildToolBar();if(HS.cds[id]<=0)clearInterval(ci);},1000);
+}
+
+// ═══════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════
+function openGate(){document.getElementById('acode').value='';document.getElementById('gerr').textContent='';document.getElementById('agate').classList.add('open');setTimeout(()=>document.getElementById('acode').focus(),80);}
+function closeGate(){document.getElementById('agate').classList.remove('open');}
+function checkCode(){
+  const v=document.getElementById('acode').value;
+  if(v==='10114'){closeGate();buildAdminUI();showScreen('admin');}
+  else if(v.length>=5){document.getElementById('gerr').textContent='INVALID CODE';setTimeout(()=>{document.getElementById('gerr').textContent='';document.getElementById('acode').value='';},700);}
+}
+function buildAdminUI(){
+  document.getElementById('ad-data').value=GS.data;document.getElementById('ad-lv').value=GS.level;document.getElementById('ad-xp').value=GS.xp;
+  document.getElementById('ad-trace').value=GS.mods?.trace??1;document.getElementById('ad-xpm').value=GS.mods?.xp??1;
+  const tr=document.getElementById('ad-trows');tr.innerHTML='';
+  TOOLS.forEach(t=>{const row=document.createElement('div');row.className='adrow';row.innerHTML=`<label>${t.icon} ${t.name}</label><input class="adinput" type="number" id="adt-${t.id}" min="0" max="${t.maxLv}" value="${GS.tools[t.id]||0}">`;tr.appendChild(row);});
+  const tgr=document.getElementById('ad-tgtrows');tgr.innerHTML='';
+  TARGETS.forEach(t=>{const row=document.createElement('div');row.className='adrow';row.innerHTML=`<label style="font-size:9px;">${t.name}</label><input type="checkbox" id="adtgt-${t.id}" ${GS.unlocked.includes(t.id)?'checked':''} style="accent-color:var(--green);width:13px;height:13px;">`;tgr.appendChild(row);});
+}
+function adSetData(){const v=parseInt(document.getElementById('ad-data').value);if(!isNaN(v)){GS.data=v;save();updateHUD();document.getElementById('adl-data').textContent='✓ Set to '+v;}}
+function adSetLevel(){const l=parseInt(document.getElementById('ad-lv').value),x=parseInt(document.getElementById('ad-xp').value);if(!isNaN(l))GS.level=Math.max(1,Math.min(10,l));if(!isNaN(x))GS.xp=x;unlockAtLevel(GS.level);save();updateHUD();renderTargets();renderTools();document.getElementById('adl-lv').textContent='✓ LVL '+GS.level;}
+function adSetTools(){TOOLS.forEach(t=>{const v=parseInt(document.getElementById('adt-'+t.id)?.value);if(!isNaN(v))GS.tools[t.id]=Math.max(0,Math.min(t.maxLv,v));});save();renderTools();document.getElementById('adl-tools').textContent='✓ Tools updated';}
+function adMaxTools(){TOOLS.forEach(t=>{GS.tools[t.id]=t.maxLv;const el=document.getElementById('adt-'+t.id);if(el)el.value=t.maxLv;});save();renderTools();document.getElementById('adl-tools').textContent='✓ All maxed';}
+function adUnlockAll(){TARGETS.forEach(t=>{if(!GS.unlocked.includes(t.id))GS.unlocked.push(t.id);const cb=document.getElementById('adtgt-'+t.id);if(cb)cb.checked=true;});save();renderTargets();document.getElementById('adl-tgts').textContent='✓ All unlocked';}
+function adSetMods(){if(!GS.mods)GS.mods={trace:1,xp:1};const t=parseFloat(document.getElementById('ad-trace').value),x=parseFloat(document.getElementById('ad-xpm').value);if(!isNaN(t))GS.mods.trace=t;if(!isNaN(x))GS.mods.xp=x;save();document.getElementById('adl-mods').textContent='✓ Applied';}
+function adReset(){if(!confirm('RESET ALL SAVE DATA?'))return;localStorage.removeItem(SK);GS=defSave();save();updateHUD();renderTargets();renderTools();document.getElementById('adl-danger').textContent='✓ Reset done';}
+function adCompleteAll(){TARGETS.forEach(t=>{GS.done[t.id]=(GS.done[t.id]||0)+1;if(!GS.unlocked.includes(t.id))GS.unlocked.push(t.id);});save();renderTargets();document.getElementById('adl-danger').textContent='✓ All marked done';}
+
+// ═══════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════
+let _tt=null;
+function showToast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' err':'');if(_tt)clearTimeout(_tt);_tt=setTimeout(()=>t.className='',2500);}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+unlockAtLevel(GS.level);save();
+window.addEventListener('resize',()=>{if(document.getElementById('tab-network').classList.contains('active'))renderNet();});
+</script>
+</body>
+</html>
